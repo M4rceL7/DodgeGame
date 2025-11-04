@@ -1,0 +1,3 @@
+﻿  main.cpp
+C:\Projects\DodgeGame\DodgeGame\main.cpp(8,21): warning C4834: discarding return value of function with [[nodiscard]] attribute
+  DodgeGame.vcxproj -> C:\Projects\DodgeGame\DodgeGame\x64\Debug\DodgeGame.exe
