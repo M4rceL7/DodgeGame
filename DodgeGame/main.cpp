@@ -2,49 +2,62 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
 
-
-class Button : public sf::Drawable, sf::Transformable 
+//Button class will be put later into Header file for use in mutliple areas
+class Button : public sf::Drawable, public sf::Transformable 
 {
 public:
-    Button()
+    Button(std::string_view buttonID) : m_buttonID(buttonID)
     {
         putButtonTextIntoButton();
     }
 
-    /*sf::RectangleShape& getButtonShape()
-    {
-        return button;
-    }*/
+    std::string& getButtonID() { return m_buttonID; }
+    void setButtonID(std::string_view buttonID){ m_buttonID = buttonID; }
 
-    
+    sf::Text& getButtonText() { return m_buttonText; }
+    void setButtonText(std::string& buttonText){ m_buttonText.setString(buttonText); }
 
 private:
     
     void putButtonTextIntoButton()
     {
-        buttonText.setPosition(button.getOrigin());
-        buttonText.setFillColor(sf::Color::Black);
+        sf::FloatRect textBounds = m_buttonText.getLocalBounds();
+
+        sf::Vector2f buttonTextOrigin{ textBounds.position.x + textBounds.size.x / 2.f,
+            textBounds.position.y + textBounds.size.y / 2.f };
+        sf::Vector2f buttonTextPoition{ m_button.getPosition().x + m_button.getSize().x / 2.f,
+        m_button.getPosition().y + m_button.getSize().y / 2.f };
+
+        m_buttonText.setOrigin(buttonTextOrigin);
+
+        m_buttonText.setPosition(buttonTextPoition);
+
+        m_buttonText.setFillColor(sf::Color::Black);
     }
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override
     {
-        target.draw(button, states);
-        target.draw(buttonText, states);
+        states.transform *= getTransform();
+
+        target.draw(m_button, states);
+        target.draw(m_buttonText, states);
     }
 
-    std::string buttonID{" "};
-    const sf::Font font{ "arial.ttf" };
-    sf::RectangleShape button{ sf::Vector2f(100,50) };
-    sf::Text buttonText{ font, "text" };
+    std::string m_buttonID{"button"};
+    const sf::Font m_font{ "arial.ttf" };
+
+    sf::RectangleShape m_button{sf::Vector2f(100,50)};
+    sf::Text m_buttonText{ m_font, "text" };
 };
 
 
 int main()
 {
     
-    Button button1{};
+    Button button1{"Test1"};
+    button1.setPosition({ 20,50 });
 
-    sf::RenderWindow mainMenu(sf::VideoMode({ 1000, 1000 }), "SFML works!");
+    sf::RenderWindow mainMenu(sf::VideoMode({ 1000, 1000 }), "Main Menu");
 
     while (mainMenu.isOpen())
     {
