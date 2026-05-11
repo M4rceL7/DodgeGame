@@ -84,9 +84,9 @@ private:
     sf::Text m_buttonText{ m_font, "text", 20 };
 };
 
-void buttonLayout(std::vector<Button>& buttons)
+void buttonLayout()
 {
-
+    
 }
 
 int main()
@@ -94,22 +94,22 @@ int main()
     sf::RenderWindow mainMenu(sf::VideoMode({ 500, 500 }), "Main Menu");
 
 //Buttons created for later use__________________________________
-    Button button1{ "Game1" };
+    Button button1{ "ButtonGame1" };
     std::string Button1Text{ "Game 1" };
     button1.setButtonText(Button1Text);
     button1.setPosition({ 100,250 });
 
-    Button button2{ "Game2" };
+    Button button2{ "ButtonGame2" };
     std::string Button2Text{ "Game 2" };
     button2.setButtonText(Button2Text);
     button2.setPosition({ 300,250 });
 
-    Button quitButton{ "Quit" };
+    Button quitButton{ "ButtonQuit" };
     std::string quitButtonText{ "Quit" };
     quitButton.setButtonText(quitButtonText);
-    quitButton.setPosition( {200,350} );
+    quitButton.setPosition({ 200,350 });
 
-    std::vector<std::reference_wrapper<Button>> buttonListForHorizontalLayout1{ button1, button2 };
+    
 
 //Start of Loop__________________________________________________
     while (mainMenu.isOpen())
