@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
+#include <vector>
+#include <iostream>
 
 //Button class will be put later into Header file for use in mutliple areas
 class Button : public sf::Drawable, public sf::Transformable 
@@ -84,10 +86,6 @@ private:
     sf::Text m_buttonText{ m_font, "text", 20 };
 };
 
-void buttonLayout()
-{
-    
-}
 
 int main()
 {
@@ -109,6 +107,14 @@ int main()
     quitButton.setButtonText(quitButtonText);
     quitButton.setPosition({ 200,350 });
 
+    //Button Layout______________________________________________
+    std::vector<Button> buttonsForMiddleLayout{button1, button2};
+    int amountOfButtons{ static_cast<int>(std::ssize(buttonsForMiddleLayout)) };
+
+    for (int index{ 0 }; index < std::ssize(buttonsForMiddleLayout); ++index)
+    {
+        
+    }
     
 
 //Start of Loop__________________________________________________
