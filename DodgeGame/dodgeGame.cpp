@@ -2,7 +2,28 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
 #include <iostream>
+#include <vector>
 
+
+class Bullet : public sf::Drawable, public sf::Transformable
+{
+public:
+	Bullet()
+	{
+	}
+
+private:
+	void draw(sf::RenderTarget& target, sf::RenderStates states) const override
+	{
+		states.transform *= getTransform();
+		
+		target.draw(m_bullet, states);
+		
+	}
+
+	sf::CircleShape m_bullet{ 2.f };
+	
+};
 
 class Player : public sf::Drawable, public sf::Transformable
 {
@@ -10,6 +31,14 @@ public:
 	Player()
 	{
 		initialTransform();
+	}
+
+	Bullet shoot()
+	{
+		
+		Bullet bullet{};
+
+		return bullet;
 	}
 
 private:
@@ -22,21 +51,22 @@ private:
 
 	void initialTransform()
 	{
-		//sf::FloatRect playerModelBounds = m_playerModel.getLocalBounds();
-		/*sf::Vector2f playerModelOrigin{ playerModelBounds.position.x + playerModelBounds.size.x / 2.f,
-										playerModelBounds.position.y + playerModelBounds.size.y / 2.f };*/
-
 		m_playerModel.setOrigin(m_playerModel.getGeometricCenter());
+
 	}
 
 	sf::CircleShape m_playerModel{30.f, 3};
+	
 };
+
 
 void dodgeGame()
 {
 	sf::RenderWindow dodgeGameWindow(sf::VideoMode({ 1000,1000 }), "Dodge Game");
 
 	Player player{};
+	player.setPosition({ 150,150 });
+	std::vector<Bullet> bulletsOnScreen{};
 	sf::Vector2f mousePosition{};
 	sf::Vector2f playerPosition{};
 	
@@ -55,6 +85,14 @@ void dodgeGame()
 				if (keyPressed->scancode == sf::Keyboard::Scan::Escape)
 				{
 					dodgeGameWindow.close();
+				}
+			}
+
+			if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+			{
+				if (mouseButtonPressed->button == sf::Mouse::Button::Right)
+				{
+					std::cout << "( " << player.getPosition().x << " / " << player.getPosition().y << " )" << '\n';
 				}
 			}
 		}
@@ -83,9 +121,17 @@ void dodgeGame()
 		float directionOfPlayerInDeg = directionOfPlayerInRad.asDegrees();
 
 		player.setRotation(sf::degrees(-directionOfPlayerInDeg));
+
+		//Player Actions
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+		{
+			
+		}
+		
 		
 		
 		dodgeGameWindow.draw(player);
+		
 		dodgeGameWindow.display();
 		
 	}
