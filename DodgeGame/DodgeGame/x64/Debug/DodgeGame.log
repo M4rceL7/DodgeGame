@@ -1,11 +1,4 @@
 ﻿  dodgeGame.cpp
-C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(140,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(141,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(145,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(146,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(151,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(152,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(156,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(157,18): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(162,1): warning C4715: 'randomPositionAndDirectionOutsideOfScreen': not all control paths return a value
+C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(290,1): warning C4715: 'randomPositionAndDirectionOutsideOfScreen': not all control paths return a value
+C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(316,1): warning C4715: 'randomPositionForTargetedAst': not all control paths return a value
   DodgeGame.vcxproj -> C:\Projects\DodgeGame\DodgeGame\x64\Debug\DodgeGame.exe
