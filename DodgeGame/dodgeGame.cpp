@@ -502,19 +502,35 @@ void dodgeGame()
 		//Player Movement
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::W))
 		{
-			player.move({ 0.f, -(speed * deltaT.asSeconds())});
+			if (player.getPosition().y > 0.0f + player.getRadius() && player.getPosition().x > 0.0f)
+			{
+				player.move({ 0.f, -(speed * deltaT.asSeconds()) });
+			}
+			
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::A))
 		{
-			player.move({ -(speed * deltaT.asSeconds()), 0.f });
+			if (player.getPosition().y > 0.0f && player.getPosition().x > 0.0f + player.getRadius())
+			{
+				player.move({ -(speed * deltaT.asSeconds()), 0.f });
+			}
+			
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::S))
 		{
-			player.move({ 0.f, (speed * deltaT.asSeconds()) });
+			if (player.getPosition().y < dodgeGameWindow.getSize().y - player.getRadius() && player.getPosition().x > 0.0f)
+			{
+				player.move({ 0.f, (speed * deltaT.asSeconds()) });
+			}
+			
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::D))
 		{
-			player.move({ (speed * deltaT.asSeconds()), 0.f });
+			if (player.getPosition().x < dodgeGameWindow.getSize().x - player.getRadius() && player.getPosition().y > 0.0f)
+			{
+				player.move({ (speed * deltaT.asSeconds()), 0.f });
+			}
+			
 		}
 
 		//Player Direction Update
