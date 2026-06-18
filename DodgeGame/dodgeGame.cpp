@@ -227,6 +227,7 @@ public:
 	}
 
 private:
+
 	void initialTransform()
 	{
 		m_asteriod.setOrigin(m_asteriod.getGeometricCenter());
@@ -239,7 +240,10 @@ private:
 		target.draw(m_asteriod, states);
 	}
 
-	sf::CircleShape m_asteriod{ static_cast<float>(Random::get(15, 35))};
+	int m_asteroidRandomSizeMin{ 10 };
+	int m_asteroidRandomSizeMax{ 40 };
+
+	sf::CircleShape m_asteriod{ static_cast<float>(Random::get(m_asteroidRandomSizeMin, m_asteroidRandomSizeMax))};
 };
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -366,12 +370,32 @@ bool playerInCloud(damagingCloud& dmgc, Player& player)
 	return false;
 }
 
+float astSpeedBasedOnSize(float& speed, Asteroid& ast)
+{
+	float astSize{ ast.getGlobalBounds().size.x};
+	if (astSize <= 20.f)
+	{
+		return speed * 1.5f;
+	}
+
+	if (astSize >= 21.f && astSize <= 29.f)
+	{
+		return speed;
+	}
+
+	if (astSize >= 30.f)
+	{
+		return speed * 0.5f;
+	}
+}
+
 //-------------------------------------------------------------------------
 void dodgeGame()
 {
 	sf::RenderWindow dodgeGameWindow(sf::VideoMode({ 1000,1000 }), "Dodge Game");
 
 	sf::Clock gameTimer;
+	sf::Clock difficultyTimer;
 	sf::Clock delta;
 	sf::Clock astSpawnTimer;
 	sf::Clock targetedSpawnTimer;
@@ -406,9 +430,9 @@ void dodgeGame()
 
 	float directionOfPlayerInDeg{};
 
-	float speed{ 400.0f};
-	float bulletSpeed{ 900.0f };
-	float asteroidSpeed{ static_cast<float>(Random::get(150, 800)) };
+	float speed{ 500.0f};
+	float bulletSpeed{ 1200.0f };
+	float asteroidSpeed{ 700.f };
 
 	float randSpawnTimerAst{ 1.0f };
 	float randSpawnTimerAstTargeted{ 2.0f };
@@ -645,14 +669,14 @@ void dodgeGame()
 
 		for (auto& ast : asteroidsOnScreen)
 		{
-			asteroidSpeed = static_cast<float>(Random::get(150, 800));
+			float adjustedSpeed{ astSpeedBasedOnSize(asteroidSpeed, ast) };
 			if (ast.deleteSaveTimeC.getElapsedTime().asSeconds() >= ast.deleteSaveTime)
 			{
 				ast.checkIfStillOnScreen(dodgeGameWindow);
 			}
 			if(ast.isActive)
 			{
-				ast.move({ ast.direction * asteroidSpeed  * deltaT.asSeconds() });
+				ast.move({ ast.direction * adjustedSpeed * deltaT.asSeconds() });
 				playerCollision(ast, player);
 				dodgeGameWindow.draw(ast);
 			}
@@ -660,14 +684,15 @@ void dodgeGame()
 
 		for (auto& ast : targetedAsteroidOnScreen)
 		{
-			asteroidSpeed = static_cast<float>(Random::get(150, 800));
+			float adjustedSpeed{ astSpeedBasedOnSize(asteroidSpeed, ast) };
+			
 			if (ast.deleteSaveTimeC.getElapsedTime().asSeconds() >= ast.deleteSaveTime)
 			{
 				ast.checkIfStillOnScreen(dodgeGameWindow);
 			}
 			if (ast.isActive)
 			{
-				ast.move({ ast.direction * asteroidSpeed * deltaT.asSeconds() });
+				ast.move({ ast.direction * adjustedSpeed * deltaT.asSeconds() });
 				playerCollision(ast, player);
 				dodgeGameWindow.draw(ast);
 			}
