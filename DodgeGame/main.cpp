@@ -10,10 +10,6 @@ void dodgeGame();
 
 int main()
 {
-
-    dodgeGame();
-
-    return 0;
     sf::RenderWindow mainMenu(sf::VideoMode({ 500, 500 }), "Main Menu");
 
 //Buttons created for later use__________________________________
@@ -87,7 +83,9 @@ int main()
                 { 
                     if (button1.onPressed(mainMenu))
                     {
-                        
+                        mainMenu.setVisible(false);
+                        dodgeGame();
+                        mainMenu.setVisible(true);
                     }
 
                     if (button2.onPressed(mainMenu))
