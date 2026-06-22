@@ -100,16 +100,6 @@ public:
 		m_healthPoints = hp;
 	}
 
-	void checkIfGameOver(sf::Clock& gameTimer)
-	{
-		if (m_healthPoints <= 0)
-		{
-			std::cout << "Game Over \n";
-			gameTimer.stop();
-			
-		}
-	}
-
 	int& getScore()
 	{
 		return m_points;
@@ -131,15 +121,19 @@ private:
 		states.transform *= getTransform();
 
 		target.draw(m_playerModel, states);
+		target.draw(m_front, states);
 	}
 
 	void initialTransform()
 	{
 		m_playerModel.setOrigin(m_playerModel.getGeometricCenter());
+		m_front.setFillColor(sf::Color::Blue);
+		m_front.setPosition({ -2.2f,-33.f });
 	}
 
 	sf::CircleShape m_playerModel{ 30.f, 3 };
-	int m_healthPoints{ 100 };
+	sf::RectangleShape m_front{ {5.f,10.f} };
+	int m_healthPoints{ 1 };
 	int m_points{ 0 };
 };
 
@@ -149,9 +143,9 @@ class damagingCloud : public sf::Drawable, public sf::Transformable
 public:
 	sf::Clock timeBeforeDamageDealt;
 	sf::Clock timeAlive;
-	float duration{50};
+	float duration{ 50 };
 
-	damagingCloud() 
+	damagingCloud()
 	{
 		getRandomSize();
 		getRandomRotation();
@@ -172,7 +166,7 @@ public:
 
 	void getRandomSize()
 	{
-		float x{static_cast<float>(Random::get(minSize, maxSize))};
+		float x{ static_cast<float>(Random::get(minSize, maxSize)) };
 		float y{ static_cast<float>(Random::get(minSize, maxSize)) };
 
 		m_damageArea.setSize({ x,y });
@@ -204,7 +198,7 @@ public:
 	bool isActive{ true };
 	sf::Vector2f direction{};
 	sf::Clock deleteSaveTimeC;
-	float deleteSaveTime{ 2.0f }; 
+	float deleteSaveTime{ 2.0f };
 	float speed{};
 
 	Asteroid()
@@ -230,6 +224,11 @@ public:
 		return m_asteriod.getRadius();
 	}
 
+	void setRadius(float newRad)
+	{
+		m_asteriod.setRadius(newRad);
+	}
+
 private:
 
 	void initialTransform()
@@ -247,16 +246,25 @@ private:
 	int m_asteroidRandomSizeMin{ 15 };
 	int m_asteroidRandomSizeMax{ 40 };
 
-	sf::CircleShape m_asteriod{ static_cast<float>(Random::get(m_asteroidRandomSizeMin, m_asteroidRandomSizeMax))};
+	sf::CircleShape m_asteriod{ static_cast<float>(Random::get(m_asteroidRandomSizeMin, m_asteroidRandomSizeMax)) };
 };
 
 //---------------------------------------------------------------------------------------------------------------------
+
+bool checkIfGameOver(sf::Clock& gameTimer, Player& player)
+{
+	if (player.getHealthPoints() <= 0)
+	{
+		return true;
+	}
+	return false;
+}
 
 sf::Vector2f normalize(sf::Vector2f vec)
 {
 	float magnitude{ std::sqrt((vec.x * vec.x) + (vec.y * vec.y)) };
 
-	return { vec.x / magnitude, vec.y / magnitude }; 
+	return { vec.x / magnitude, vec.y / magnitude };
 }
 
 //Random Asteroids here
@@ -270,7 +278,7 @@ sf::Vector2f randomPositionAndDirectionOutsideOfScreen(int randomNumber, sf::Ren
 	case 1: // Left of screen
 		x = static_cast<float>(Random::get(-50, 0));
 		y = static_cast<float>(Random::get(0, static_cast<int>(currentWindow.getSize().y)));
-		asteroid.direction = normalize({static_cast<float>(Random::get(0, static_cast<int>(currentWindow.getSize().x))), y});
+		asteroid.direction = normalize({ static_cast<float>(Random::get(0, static_cast<int>(currentWindow.getSize().x))), y });
 		return { x, y };
 	case 2: // Right of screen
 		x = static_cast<float>(Random::get(static_cast<int>(currentWindow.getSize().x), static_cast<int>(currentWindow.getSize().x) + 50));
@@ -280,13 +288,13 @@ sf::Vector2f randomPositionAndDirectionOutsideOfScreen(int randomNumber, sf::Ren
 		return { x, y };
 	case 3: // Top of screen
 		x = static_cast<float>(Random::get(0, static_cast<int>(currentWindow.getSize().x)));
-		y = static_cast<float>(Random::get(- 50, 0));
+		y = static_cast<float>(Random::get(-50, 0));
 		asteroid.direction = normalize({ x, static_cast<float>(Random::get(0, static_cast<int>(currentWindow.getSize().y))) });
 		return { x, y };
 	case 4: // Bottom of screen
 		x = static_cast<float>(Random::get(0, static_cast<int>(currentWindow.getSize().x)));
 		y = static_cast<float>(Random::get(static_cast<int>(currentWindow.getSize().y), static_cast<int>(currentWindow.getSize().y) + 50));
-		temp = normalize({x, static_cast<float>(Random::get(0, static_cast<int>(currentWindow.getSize().y))) });
+		temp = normalize({ x, static_cast<float>(Random::get(0, static_cast<int>(currentWindow.getSize().y))) });
 		asteroid.direction = { temp.x , (temp.y) * -1.0f };
 		return { x, y };
 	}
@@ -300,7 +308,7 @@ sf::Vector2f randomPositionForTargetedAst(int randomNumber, sf::RenderWindow& cu
 	switch (randomNumber)
 	{
 	case 1: // Left of screen
-		x = static_cast<float>( Random::get(-50, 0));
+		x = static_cast<float>(Random::get(-50, 0));
 		y = static_cast<float>(Random::get(0, static_cast<int>(currentWindow.getSize().y)));
 		return { static_cast<float>(x), static_cast<float>(y) };
 	case 2: // Right of screen
@@ -319,7 +327,7 @@ sf::Vector2f randomPositionForTargetedAst(int randomNumber, sf::RenderWindow& cu
 }
 
 //Collision handling
-void bulletCollisionHandling(Bullet& bullet, Asteroid& asteroid, Player& player)
+bool bulletCollisionHandling(Bullet& bullet, Asteroid& asteroid, Player& player)
 {
 	float dx{ asteroid.getPosition().x - bullet.getPosition().x };
 	float dy{ asteroid.getPosition().y - bullet.getPosition().y };
@@ -340,8 +348,9 @@ void bulletCollisionHandling(Bullet& bullet, Asteroid& asteroid, Player& player)
 		{
 			player.setScore(player.getScore() += 1);
 		}
+		return true;
 	}
-	
+	return false;
 }
 
 void astOnAstCollision(Asteroid& ast1, Asteroid& ast2)
@@ -374,12 +383,12 @@ bool playerCollision(Asteroid& asteroid, Player& player)
 bool playerInCloud(damagingCloud& dmgc, Player& player)
 {
 	auto playerCenter{ player.getPosition() };
-	auto playerRadius{ player.getRadius() -15.f};
+	auto playerRadius{ player.getRadius() - 15.f };
 
 	sf::Vector2f cloudCenter{ dmgc.getPosition() };
 	sf::Angle cloudRotation{ dmgc.getRotation() };
-	float cloudHalfX{ (dmgc.getGlobalBounds().size.x / 2.f)};
-	float cloudHalfY{ (dmgc.getGlobalBounds().size.y / 2.f)};
+	float cloudHalfX{ (dmgc.getGlobalBounds().size.x / 2.f) };
+	float cloudHalfY{ (dmgc.getGlobalBounds().size.y / 2.f) };
 
 	sf::Vector2f CloudToPlayer{ playerCenter - cloudCenter };
 
@@ -419,9 +428,10 @@ float astSpeedBasedOnSize(float& speed, Asteroid& ast)
 }
 
 //-------------------------------------------------------------------------
+
 void dodgeGame()
 {
-	sf::RenderWindow dodgeGameWindow(sf::VideoMode({ 1000,1000 }), "Dodge Game");
+	sf::RenderWindow dodgeGameWindow(sf::VideoMode({ 1000,900 }), "Dodge Game");
 
 	sf::Clock gameTimer;
 	sf::Clock difficultyTimer;
@@ -430,21 +440,24 @@ void dodgeGame()
 	sf::Clock targetedSpawnTimer;
 	sf::Clock damagingCloudSpawnTimer;
 	sf::Clock cloudDamageCoolDownTimer;
-	
+	sf::Clock GameOverTextTime{};
+	GameOverTextTime.stop();
+
 	Player player{};
+
 	const sf::Font font{ "arial.ttf" };
-	sf::Text hpText{font, "HP: "};
-	sf::Text scoreText{ font, "Score: "};
-	sf::Text timeText{ font, "Time: "};
+	sf::Text hpText{ font, "HP: " };
+	sf::Text scoreText{ font, "Score: " };
+	sf::Text timeText{ font, "Time: " };
 	int displayTime{};
 
 	scoreText.setOrigin(scoreText.getLocalBounds().getCenter());
-	scoreText.setPosition({ dodgeGameWindow.getSize().x / 2.f, 20.0f});
-	hpText.setPosition({ static_cast<float>(dodgeGameWindow.getSize().x - 110), 0.0f});
+	scoreText.setPosition({ dodgeGameWindow.getSize().x / 2.f, 20.0f });
+	hpText.setPosition({ static_cast<float>(dodgeGameWindow.getSize().x - 110), 0.0f });
 
-	
+
 	player.setPosition({ dodgeGameWindow.getSize().x / 2.f, dodgeGameWindow.getSize().y / 2.f });
-	float shotCooldown{ 0.5f }; 
+	float shotCooldown{ 0.38f };
 
 	std::vector<Bullet> bulletsOnScreen{};
 	std::vector<Asteroid> asteroidsOnScreen{};
@@ -459,21 +472,40 @@ void dodgeGame()
 
 	float directionOfPlayerInDeg{};
 
-	float speed{ 500.0f};
+	float speed{ 500.0f };
 	float bulletSpeed{ 1200.0f };
 	float asteroidSpeed{ 700.f };
 
 	float randSpawnTimerAst{ 1.0f };
 	float randSpawnTimerAstTargeted{ 2.0f };
-	float randSpawnTimerDagamingCloud{10.f};
+	float randSpawnTimerDagamingCloud{ 10.f };
 
 	float iterationOfDifficutlyTimer1{ 1.0f };
 	float iterationOfDifficutlyTimer2{ 1.0f };
 
-	while (dodgeGameWindow.isOpen() && gameTimer.isRunning()) 
+
+	while (dodgeGameWindow.isOpen() && gameTimer.isRunning())
 	{
-		//Game difficutly increase
-			
+
+		//Game over check before anything continues
+		if (checkIfGameOver(gameTimer, player))
+		{
+			GameOverTextTime.start();
+			if (GameOverTextTime.getElapsedTime().asSeconds() >= 3.5f)
+			{
+				gameTimer.stop();
+			}
+			sf::Text gameOverText{ font, "Game Over", 100 };
+			gameOverText.setPosition({ 250,350 });
+
+			dodgeGameWindow.clear();
+			dodgeGameWindow.draw(gameOverText);
+			dodgeGameWindow.display();
+		}
+		else
+		{
+			//Game difficutly increase
+
 			if (difficultyTimer.getElapsedTime().asSeconds() > 10.0f * iterationOfDifficutlyTimer1)
 			{
 				asteroidSpeed += 15.f;
@@ -484,7 +516,7 @@ void dodgeGame()
 				{
 					iterationOfDifficutlyTimer1++;
 				}
-				
+
 			}
 
 			if (difficultyTimer.getElapsedTime().asSeconds() > 120.0f * iterationOfDifficutlyTimer2)
@@ -494,315 +526,383 @@ void dodgeGame()
 				{
 					iterationOfDifficutlyTimer2++;
 				}
-				
+
 			}
-		
 
 
-		//Preset Data that is needed every loop rotation
-		displayTime = static_cast<int>(gameTimer.getElapsedTime().asSeconds());
-		timeText.setString("Time: " + std::to_string(displayTime));
-		scoreText.setString("Score: " + std::to_string(player.getScore()));
-		hpText.setString("HP: " + std::to_string(player.getHealthPoints()));
 
-		mousePosition = dodgeGameWindow.mapPixelToCoords(sf::Mouse::getPosition(dodgeGameWindow));
-		playerPosition = player.getPosition();
-		directionOfPlayerInDeg = sf::radians(atan2(playerPosition.x - mousePosition.x, playerPosition.y - mousePosition.y)).asDegrees();
+			//Preset Data that is needed every loop rotation
+			displayTime = static_cast<int>(gameTimer.getElapsedTime().asSeconds());
+			timeText.setString("Time: " + std::to_string(displayTime));
+			scoreText.setString("Score: " + std::to_string(player.getScore()));
+			hpText.setString("HP: " + std::to_string(player.getHealthPoints()));
 
-		//DeltaT
-		sf::Time deltaT = delta.getElapsedTime();
-		delta.restart();
+			mousePosition = dodgeGameWindow.mapPixelToCoords(sf::Mouse::getPosition(dodgeGameWindow));
+			playerPosition = player.getPosition();
+			directionOfPlayerInDeg = sf::radians(atan2(playerPosition.x - mousePosition.x, playerPosition.y - mousePosition.y)).asDegrees();
 
-		dodgeGameWindow.clear();
+			//DeltaT
+			sf::Time deltaT = delta.getElapsedTime();
+			delta.restart();
 
-		//Removing inactive objects
-		for (int index{ 0 }; index < std::ssize(bulletsOnScreen); index++)
-		{
-			if (!bulletsOnScreen.at(index).isActive)
+			dodgeGameWindow.clear();
+
+			//Removing inactive objects
+			for (int index{ 0 }; index < std::ssize(bulletsOnScreen); index++)
 			{
-				bulletsOnScreen.erase(bulletsOnScreen.begin()+index);
-			}
-		}
-
-		for (int index{ 0 }; index < std::ssize(asteroidsOnScreen); index++)
-		{
-			if (!asteroidsOnScreen.at(index).isActive)
-			{
-				asteroidsOnScreen.erase(asteroidsOnScreen.begin() + index);
-			}
-		}
-
-		for (int index{ 0 }; index < std::ssize(targetedAsteroidOnScreen); index++)
-		{
-			if (!targetedAsteroidOnScreen.at(index).isActive)
-			{
-				targetedAsteroidOnScreen.erase(targetedAsteroidOnScreen.begin() + index);
-			}
-		}
-
-		for (int index{ 0 }; index < std::ssize(cloudsOnScreen); index++)
-		{
-			if (cloudsOnScreen.at(index).timeAlive.getElapsedTime().asSeconds() > cloudsOnScreen.at(index).duration)
-			{
-				cloudsOnScreen.erase(cloudsOnScreen.begin() + index);
-			}
-		}
-		
-
-		//GamePlay settings (spawning and moving of asteriods, damaging clouds)
-		if (randSpawnTimerAst <= astSpawnTimer.getElapsedTime().asSeconds())
-		{
-			Asteroid asteriod{};
-			asteriod.deleteSaveTimeC.start();
-			asteriod.setPosition({randomPositionAndDirectionOutsideOfScreen(Random::get(1,4), dodgeGameWindow, asteriod)});
-			asteriod.speed = astSpeedBasedOnSize(asteroidSpeed, asteriod);
-			asteroidsOnScreen.push_back(asteriod);
-
-			astSpawnTimer.restart();
-		}
-
-		if (randSpawnTimerAstTargeted <= targetedSpawnTimer.getElapsedTime().asSeconds())
-		{
-			Asteroid asteriod{};
-			asteriod.deleteSaveTimeC.start();
-			asteriod.setPosition({ randomPositionForTargetedAst(Random::get(1,4), dodgeGameWindow, asteriod) });
-			asteriod.direction = normalize(playerPosition - asteriod.getPosition());
-			asteriod.speed = astSpeedBasedOnSize(asteroidSpeed, asteriod);
-			targetedAsteroidOnScreen.push_back(asteriod);
-
-			targetedSpawnTimer.restart();
-		}
-
-		if (randSpawnTimerDagamingCloud <= damagingCloudSpawnTimer.getElapsedTime().asSeconds() && std::ssize(cloudsOnScreen) < amountOfCloudsAllowed)
-		{
-			damagingCloud dmgc{};
-			dmgc.setPosition( { static_cast<float>(Random::get(0,dodgeGameWindow.getSize().x)), static_cast<float>(0,Random::get(0,dodgeGameWindow.getSize().x))} );
-			dmgc.timeBeforeDamageDealt.start();
-			dmgc.timeAlive.start();
-			damagingCloudSpawnTimer.restart();
-
-			cloudsOnScreen.push_back(dmgc);
-		}
-
-		//Player Movement
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::W))
-		{
-			if (player.getPosition().y > 0.0f + player.getRadius() && player.getPosition().x > 0.0f)
-			{
-				player.move({ 0.f, -(speed * deltaT.asSeconds()) });
-			}
-			
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::A))
-		{
-			if (player.getPosition().y > 0.0f && player.getPosition().x > 0.0f + player.getRadius())
-			{
-				player.move({ -(speed * deltaT.asSeconds()), 0.f });
-			}
-			
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::S))
-		{
-			if (player.getPosition().y < dodgeGameWindow.getSize().y - player.getRadius() && player.getPosition().x > 0.0f)
-			{
-				player.move({ 0.f, (speed * deltaT.asSeconds()) });
-			}
-			
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::D))
-		{
-			if (player.getPosition().x < dodgeGameWindow.getSize().x - player.getRadius() && player.getPosition().y > 0.0f)
-			{
-				player.move({ (speed * deltaT.asSeconds()), 0.f });
-			}
-			
-		}
-
-		//Player Direction Update
-		player.setRotation(sf::degrees(-directionOfPlayerInDeg));
-		
-		//Player Actions
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-		{
-			if (player.shootingCoowldown.getElapsedTime().asSeconds() >= shotCooldown)
-			{
-				directionOfBullet = normalize(mousePosition - playerPosition);
-				sf::Vector2f offset{ (directionOfBullet.x * player.distanceToTopFromCenter().x), (directionOfBullet.y * player.distanceToTopFromCenter().y) };
-				Bullet bullet{ player.shoot() };
-				bullet.setPosition(playerPosition + offset);
-				bullet.direction = directionOfBullet;
-
-				bulletsOnScreen.push_back(bullet);
-			}
-			
-		}
-
-		
-		while (const std::optional event = dodgeGameWindow.pollEvent())
-		{
-			if (event->is<sf::Event::Closed>())
-				dodgeGameWindow.close();
-
-			if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
-			{
-				if (keyPressed->scancode == sf::Keyboard::Scan::Escape)
+				if (!bulletsOnScreen.at(index).isActive)
 				{
+					bulletsOnScreen.erase(bulletsOnScreen.begin() + index);
+				}
+			}
+
+			for (int index{ 0 }; index < std::ssize(asteroidsOnScreen); index++)
+			{
+				if (!asteroidsOnScreen.at(index).isActive)
+				{
+					asteroidsOnScreen.erase(asteroidsOnScreen.begin() + index);
+				}
+			}
+
+			for (int index{ 0 }; index < std::ssize(targetedAsteroidOnScreen); index++)
+			{
+				if (!targetedAsteroidOnScreen.at(index).isActive)
+				{
+					targetedAsteroidOnScreen.erase(targetedAsteroidOnScreen.begin() + index);
+				}
+			}
+
+			for (int index{ 0 }; index < std::ssize(cloudsOnScreen); index++)
+			{
+				if (cloudsOnScreen.at(index).timeAlive.getElapsedTime().asSeconds() > cloudsOnScreen.at(index).duration)
+				{
+					cloudsOnScreen.erase(cloudsOnScreen.begin() + index);
+				}
+			}
+
+
+			//GamePlay settings (spawning and moving of asteriods, damaging clouds)
+			if (randSpawnTimerAst <= astSpawnTimer.getElapsedTime().asSeconds())
+			{
+				Asteroid asteriod{};
+				asteriod.deleteSaveTimeC.start();
+				asteriod.setPosition({ randomPositionAndDirectionOutsideOfScreen(Random::get(1,4), dodgeGameWindow, asteriod) });
+				asteriod.speed = astSpeedBasedOnSize(asteroidSpeed, asteriod);
+				asteroidsOnScreen.push_back(asteriod);
+
+				astSpawnTimer.restart();
+			}
+
+			if (randSpawnTimerAstTargeted <= targetedSpawnTimer.getElapsedTime().asSeconds())
+			{
+				Asteroid asteriod{};
+				asteriod.deleteSaveTimeC.start();
+				asteriod.setPosition({ randomPositionForTargetedAst(Random::get(1,4), dodgeGameWindow, asteriod) });
+				asteriod.direction = normalize(playerPosition - asteriod.getPosition());
+				asteriod.speed = astSpeedBasedOnSize(asteroidSpeed, asteriod);
+				targetedAsteroidOnScreen.push_back(asteriod);
+
+				targetedSpawnTimer.restart();
+			}
+
+			//Deactivated for now, might activate if after rethinking this mechanic
+			/*if (randSpawnTimerDagamingCloud <= damagingCloudSpawnTimer.getElapsedTime().asSeconds() && std::ssize(cloudsOnScreen) < amountOfCloudsAllowed)
+			{
+				damagingCloud dmgc{};
+				dmgc.setPosition( { static_cast<float>(Random::get(0,dodgeGameWindow.getSize().x)), static_cast<float>(0,Random::get(0,dodgeGameWindow.getSize().x))} );
+				dmgc.timeBeforeDamageDealt.start();
+				dmgc.timeAlive.start();
+				damagingCloudSpawnTimer.restart();
+
+				cloudsOnScreen.push_back(dmgc);
+			}*/
+
+			//Player Movement
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::W))
+			{
+				if (player.getPosition().y > 0.0f + player.getRadius() && player.getPosition().x > 0.0f)
+				{
+					player.move({ 0.f, -(speed * deltaT.asSeconds()) });
+				}
+
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::A))
+			{
+				if (player.getPosition().y > 0.0f && player.getPosition().x > 0.0f + player.getRadius())
+				{
+					player.move({ -(speed * deltaT.asSeconds()), 0.f });
+				}
+
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::S))
+			{
+				if (player.getPosition().y < dodgeGameWindow.getSize().y - player.getRadius() && player.getPosition().x > 0.0f)
+				{
+					player.move({ 0.f, (speed * deltaT.asSeconds()) });
+				}
+
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::D))
+			{
+				if (player.getPosition().x < dodgeGameWindow.getSize().x - player.getRadius() && player.getPosition().y > 0.0f)
+				{
+					player.move({ (speed * deltaT.asSeconds()), 0.f });
+				}
+
+			}
+
+			//Player Direction Update
+			player.setRotation(sf::degrees(-directionOfPlayerInDeg));
+
+			//Player Actions
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			{
+				if (player.shootingCoowldown.getElapsedTime().asSeconds() >= shotCooldown)
+				{
+					directionOfBullet = normalize(mousePosition - playerPosition);
+					sf::Vector2f offset{ (directionOfBullet.x * player.distanceToTopFromCenter().x), (directionOfBullet.y * player.distanceToTopFromCenter().y) };
+					Bullet bullet{ player.shoot() };
+					bullet.setPosition(playerPosition + offset);
+					bullet.direction = directionOfBullet;
+
+					bulletsOnScreen.push_back(bullet);
+				}
+
+			}
+
+
+			while (const std::optional event = dodgeGameWindow.pollEvent())
+			{
+				if (event->is<sf::Event::Closed>())
 					dodgeGameWindow.close();
-				}
-			}
 
-			if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
-			{
-				if (mouseButtonPressed->button == sf::Mouse::Button::Right)
+				if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 				{
-					std::cout << std::ssize(bulletsOnScreen);
+					if (keyPressed->scancode == sf::Keyboard::Scan::Escape)
+					{
+						dodgeGameWindow.close();
+					}
+				}
+
+				if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+				{
+					if (mouseButtonPressed->button == sf::Mouse::Button::Right)
+					{
+						std::cout << std::ssize(bulletsOnScreen);
+					}
 				}
 			}
-		}
 
-		//Collision handling
-		if (std::ssize(bulletsOnScreen) > 0)
-		{
-			for (auto& bullet : bulletsOnScreen)
+			//Collision handling
+			if (std::ssize(bulletsOnScreen) > 0)
 			{
-				for (auto& ast : asteroidsOnScreen)
-				{	
-					if (bullet.isActive && ast.isActive)
+				for (auto& bullet : bulletsOnScreen)
+				{
+					for (auto& ast : asteroidsOnScreen)
 					{
-						bulletCollisionHandling(bullet, ast, player);
+						if (bullet.isActive && ast.isActive)
+						{
+							if (bulletCollisionHandling(bullet, ast, player))
+							{
+								if (ast.getRadius() >= 35.f)
+								{
+									sf::Vector2f perp{ -ast.direction.y, ast.direction.x };
+
+									Asteroid asteroid{};
+									asteroid.speed = ast.speed;
+									asteroid.direction = normalize(ast.direction + perp * 0.25f);
+									asteroid.setRadius(ast.getRadius() / 2.f);
+									asteroid.setPosition(ast.getPosition() + perp * (asteroid.getRadius() + 20.f));
+									asteroid.deleteSaveTime = 0.0f;
+									asteroidsOnScreen.push_back(asteroid);
+
+									Asteroid asteroid2{};
+									asteroid2.speed = ast.speed;
+									asteroid2.direction = normalize(ast.direction - perp * 0.25f);
+									asteroid2.setRadius(ast.getRadius() / 2.f);
+									asteroid2.setPosition(ast.getPosition() - perp * (asteroid.getRadius() + 20.f));
+									asteroid2.deleteSaveTime = 0.0f;
+									asteroidsOnScreen.push_back(asteroid2);
+
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (std::ssize(bulletsOnScreen) > 0)
+			{
+				for (auto& bullet : bulletsOnScreen)
+				{
+					for (auto& ast : targetedAsteroidOnScreen)
+					{
+						if (bullet.isActive && ast.isActive)
+						{
+							if (bulletCollisionHandling(bullet, ast, player))
+							{
+								if (ast.getRadius() >= 35.f)
+								{
+									sf::Vector2f perp{ -ast.direction.y, ast.direction.x };
+
+									Asteroid asteroid{};
+									asteroid.speed = ast.speed;
+									asteroid.direction = normalize(ast.direction - perp * 0.25f);
+									asteroid.setRadius(ast.getRadius() / 2.f);
+									asteroid.setPosition(ast.getPosition() + perp * (asteroid.getRadius() + 20.f));
+									asteroid.deleteSaveTime = 0.0f;
+									asteroidsOnScreen.push_back(asteroid);
+
+									Asteroid asteroid2{};
+									asteroid2.speed = ast.speed;
+									asteroid2.direction = normalize(ast.direction + perp * 0.25f);
+									asteroid2.setRadius(ast.getRadius() / 2.f);
+									asteroid2.setPosition(ast.getPosition() - perp * (asteroid.getRadius() + 20.f));
+									asteroid2.deleteSaveTime = 0.0f;
+									asteroidsOnScreen.push_back(asteroid2);
+
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (std::ssize(cloudsOnScreen) > 0)
+			{
+				for (auto& dmgc : cloudsOnScreen)
+				{
+					if (playerInCloud(dmgc, player))
+					{
+						if (cloudDamageCoolDownTimer.getElapsedTime().asSeconds() > 0.25f)
+						{
+							player.setHealthPoints(player.getHealthPoints() -= 2);
+							cloudDamageCoolDownTimer.restart();
+						}
 					}
 
 				}
 			}
-		}
-		
-		if (std::ssize(bulletsOnScreen) > 0)
-		{
-			for (auto& bullet : bulletsOnScreen)
-			{
-				for (auto& ast : targetedAsteroidOnScreen)
-				{
-					if (bullet.isActive && ast.isActive)
-					{
-						bulletCollisionHandling(bullet, ast, player);
-					}
 
+			if (std::ssize(asteroidsOnScreen) >= 2)
+			{
+				for (int i1{ 0 }; std::ssize(asteroidsOnScreen) > i1 + 1; i1++)
+				{
+					if (asteroidsOnScreen.at(i1).isActive && asteroidsOnScreen.at(i1 + 1).isActive)
+					{
+						astOnAstCollision(asteroidsOnScreen.at(i1), asteroidsOnScreen.at(i1 + 1));
+					}
 				}
 			}
-		}
 
-		if (std::ssize(cloudsOnScreen) > 0)
-		{
+			if (std::ssize(targetedAsteroidOnScreen) >= 2)
+			{
+				for (int i1{ 0 }; std::ssize(targetedAsteroidOnScreen) > i1 + 1; i1++)
+				{
+					if (targetedAsteroidOnScreen.at(i1).isActive && targetedAsteroidOnScreen.at(i1 + 1).isActive)
+					{
+						astOnAstCollision(targetedAsteroidOnScreen.at(i1), targetedAsteroidOnScreen.at(i1 + 1));
+					}
+				}
+			}
+
+			if (std::ssize(asteroidsOnScreen) >= 1 && std::ssize(targetedAsteroidOnScreen) >= 1)
+			{
+				for (auto& ast1 : asteroidsOnScreen)
+				{
+					for (auto& ast2 : targetedAsteroidOnScreen)
+					{
+						astOnAstCollision(ast1, ast2);
+					}
+				}
+			}
+
+			//Rendering
 			for (auto& dmgc : cloudsOnScreen)
 			{
-				if (playerInCloud(dmgc, player))
+				if (dmgc.timeAlive.getElapsedTime().asSeconds() < dmgc.duration)
 				{
-					if (cloudDamageCoolDownTimer.getElapsedTime().asSeconds() > 0.25f)
+					dodgeGameWindow.draw(dmgc);
+				}
+			}
+
+			for (auto& bullet : bulletsOnScreen)
+			{
+
+				bullet.checkIfStillOnScreen(dodgeGameWindow, bullet);
+				if (bullet.isActive)
+				{
+					bullet.move({ bullet.direction * bulletSpeed * deltaT.asSeconds() });
+					dodgeGameWindow.draw(bullet);
+				}
+			}
+
+			for (auto& ast : asteroidsOnScreen)
+			{
+				//float adjustedSpeed{ astSpeedBasedOnSize(asteroidSpeed, ast) };
+				if (ast.deleteSaveTimeC.getElapsedTime().asSeconds() >= ast.deleteSaveTime)
+				{
+					ast.checkIfStillOnScreen(dodgeGameWindow);
+				}
+				if (ast.isActive)
+				{
+					ast.move({ ast.direction * ast.speed * deltaT.asSeconds() });
+					if (playerCollision(ast, player))
 					{
-						player.setHealthPoints(player.getHealthPoints() -= 2);
-						cloudDamageCoolDownTimer.restart();
-						player.checkIfGameOver(gameTimer);
+						player.setHealthPoints(player.getHealthPoints() -= 10);
 					}
+					dodgeGameWindow.draw(ast);
 				}
-				
 			}
-		}
 
-		if (std::ssize(asteroidsOnScreen) >= 2)
-		{
-			for (int i1{0}; std::ssize(asteroidsOnScreen) > i1 + 1; i1++)
+			for (auto& ast : targetedAsteroidOnScreen)
 			{
-				if (asteroidsOnScreen.at(i1).isActive && asteroidsOnScreen.at(i1 + 1).isActive)
+				if (ast.deleteSaveTimeC.getElapsedTime().asSeconds() >= ast.deleteSaveTime)
 				{
-					astOnAstCollision(asteroidsOnScreen.at(i1), asteroidsOnScreen.at(i1 + 1));
+					ast.checkIfStillOnScreen(dodgeGameWindow);
 				}
-			}
-		}
-
-		if (std::ssize(targetedAsteroidOnScreen) >= 2)
-		{
-			for (int i1{ 0 }; std::ssize(targetedAsteroidOnScreen) > i1 + 1; i1++)
-			{
-				if (targetedAsteroidOnScreen.at(i1).isActive && targetedAsteroidOnScreen.at(i1 + 1).isActive)
+				if (ast.isActive)
 				{
-					astOnAstCollision(targetedAsteroidOnScreen.at(i1), targetedAsteroidOnScreen.at(i1 + 1));
+					ast.move({ ast.direction * ast.speed * deltaT.asSeconds() });
+					if (playerCollision(ast, player))
+					{
+						player.setHealthPoints(player.getHealthPoints() -= 10);
+
+					}
+					dodgeGameWindow.draw(ast);
 				}
 			}
-		}
 
-		if (std::ssize(asteroidsOnScreen) >= 1 && std::ssize(targetedAsteroidOnScreen) >= 1)
+			dodgeGameWindow.draw(player);
+			dodgeGameWindow.draw(scoreText);
+			dodgeGameWindow.draw(hpText);
+			dodgeGameWindow.draw(timeText);
+			dodgeGameWindow.display();
+		}
+	}
+	//End of Game, now the highscore will be shown in a new Window
+	dodgeGameWindow.setVisible(false);
+	sf::RenderWindow highscoreWindow(sf::VideoMode({ 500,500 }), "Dodge Game Highscore");
+
+	sf::Text highscoreText{ font, "HIGHSCORE", 50 };
+	highscoreText.setPosition({100.f,0.0f});
+
+	sf::Text highscoreNumber{ font, "Number", 25 };
+	highscoreNumber.setPosition({ 200.f, 200.f });
+
+	while (highscoreWindow.isOpen())
+	{
+		while (const std::optional event = highscoreWindow.pollEvent())
 		{
-			for (auto& ast1 : asteroidsOnScreen)
-			{
-				for (auto& ast2 : targetedAsteroidOnScreen)
-				{
-					astOnAstCollision(ast1, ast2);
-				}
-			}
+			if (event->is<sf::Event::Closed>())
+				highscoreWindow.close();
 		}
 
-		//Rendering
-		for (auto& dmgc : cloudsOnScreen)
-		{
-			if (dmgc.timeAlive.getElapsedTime().asSeconds() < dmgc.duration)
-			{
-				dodgeGameWindow.draw(dmgc);
-			}
-		}
+		highscoreWindow.clear();
 
-		for (auto& bullet : bulletsOnScreen)
-		{
-			
-			bullet.checkIfStillOnScreen(dodgeGameWindow, bullet);
-			if (bullet.isActive)
-			{
-				bullet.move({ bullet.direction * bulletSpeed * deltaT.asSeconds()});
-				dodgeGameWindow.draw(bullet);
-			}
-		}
+		highscoreWindow.draw(highscoreText);
+		highscoreWindow.draw(highscoreNumber);
 
-		for (auto& ast : asteroidsOnScreen)
-		{
-			//float adjustedSpeed{ astSpeedBasedOnSize(asteroidSpeed, ast) };
-			if (ast.deleteSaveTimeC.getElapsedTime().asSeconds() >= ast.deleteSaveTime)
-			{
-				ast.checkIfStillOnScreen(dodgeGameWindow);
-			}
-			if(ast.isActive)
-			{
-				ast.move({ ast.direction * ast.speed * deltaT.asSeconds() });
-				if (playerCollision(ast, player))
-				{
-					player.setHealthPoints(player.getHealthPoints() -= 10);
-					player.checkIfGameOver(gameTimer);
-				}
-				dodgeGameWindow.draw(ast);
-			}
-		}
-
-		for (auto& ast : targetedAsteroidOnScreen)
-		{
-			if (ast.deleteSaveTimeC.getElapsedTime().asSeconds() >= ast.deleteSaveTime)
-			{
-				ast.checkIfStillOnScreen(dodgeGameWindow);
-			}
-			if (ast.isActive)
-			{
-				ast.move({ ast.direction * ast.speed * deltaT.asSeconds() });
-				if (playerCollision(ast, player))
-				{
-					player.setHealthPoints(player.getHealthPoints() -= 10);
-					player.checkIfGameOver(gameTimer);
-				}
-				dodgeGameWindow.draw(ast);
-			}
-		}
-
-		dodgeGameWindow.draw(player);
-		dodgeGameWindow.draw(scoreText);
-		dodgeGameWindow.draw(hpText);
-		dodgeGameWindow.draw(timeText);
-		dodgeGameWindow.display();
-		
+		highscoreWindow.display();
 	}
 }

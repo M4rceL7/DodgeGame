@@ -36,7 +36,7 @@
               "RelativeDocumentMoniker": "main.cpp",
               "ToolTip": "C:\\Projects\\DodgeGame\\DodgeGame\\main.cpp",
               "RelativeToolTip": "main.cpp",
-              "ViewState": "AgIAADsAAAAAAAAAAAAAAFcAAAAyAAAAAAAAAA==",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAACUAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-10-25T17:41:24.968Z",
               "EditorCaption": ""
@@ -49,7 +49,7 @@
               "RelativeDocumentMoniker": "dodgeGame.cpp",
               "ToolTip": "C:\\Projects\\DodgeGame\\DodgeGame\\dodgeGame.cpp",
               "RelativeToolTip": "dodgeGame.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYDAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAGgDAAAAAAAAAAAQwHoDAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-05-13T10:42:17.455Z",
               "EditorCaption": ""
@@ -62,9 +62,10 @@
               "RelativeDocumentMoniker": "button.h",
               "ToolTip": "C:\\Projects\\DodgeGame\\DodgeGame\\button.h",
               "RelativeToolTip": "button.h",
-              "ViewState": "AgIAADkAAAAAAAAAAAAAAFAAAAApAAAAAAAAAA==",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAAADwAAACaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-05-13T10:39:44.62Z"
+              "WhenOpened": "2026-05-13T10:39:44.62Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",

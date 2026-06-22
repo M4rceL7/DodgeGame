@@ -14,11 +14,11 @@ int main()
 
 //Buttons created for later use__________________________________
     Button button1{ "ButtonGame1" };
-    std::string Button1Text{ "Game 1" };
+    std::string Button1Text{ "Dodge Game" };
     button1.setButtonText(Button1Text);
     
     Button button2{ "ButtonGame2" };
-    std::string Button2Text{ "Game 2" };
+    std::string Button2Text{ "In Progress" };
     button2.setButtonText(Button2Text);
   
     Button quitButton{ "ButtonQuit" };
@@ -35,9 +35,9 @@ int main()
         
     }*/
     
-    button1.setPosition({ 100,250 });
+    button1.setPosition({ 80,250 });
     button2.setPosition({ 300,250 });
-    quitButton.setPosition({ 200,350 });
+    quitButton.setPosition({ 225,350 });
 
 //Start of Loop__________________________________________________
     while (mainMenu.isOpen())

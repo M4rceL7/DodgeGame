@@ -58,6 +58,8 @@ private:
     {
         sf::FloatRect textBounds = m_buttonText.getLocalBounds();
 
+        m_button.setSize({ m_buttonText.getLocalBounds().size.x + m_textPaddingToButton, m_buttonText.getLocalBounds().size.y + (m_textPaddingToButton *2) });
+
         sf::Vector2f buttonTextOrigin{ textBounds.position.x + textBounds.size.x / 2.f,
             textBounds.position.y + textBounds.size.y / 2.f };
         sf::Vector2f buttonTextPoition{ m_button.getPosition().x + m_button.getSize().x / 2.f,
@@ -82,4 +84,6 @@ private:
 
     sf::RectangleShape m_button{ sf::Vector2f(100,50) };
     sf::Text m_buttonText{ m_font, "text", 20 };
+
+    float m_textPaddingToButton{ 10.f };
 };
