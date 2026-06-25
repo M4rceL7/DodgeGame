@@ -1,2 +1,5 @@
-﻿  main.cpp
+﻿  dodgeGame.cpp
+C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(328,1): warning C4715: 'randomPositionForTargetedAst': not all control paths return a value
+C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(302,1): warning C4715: 'randomPositionAndDirectionOutsideOfScreen': not all control paths return a value
+C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(429,1): warning C4715: 'astSpeedBasedOnSize': not all control paths return a value
   DodgeGame.vcxproj -> C:\Projects\DodgeGame\DodgeGame\x64\Debug\DodgeGame.exe

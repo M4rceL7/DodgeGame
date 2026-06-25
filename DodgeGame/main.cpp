@@ -6,7 +6,7 @@
 
 #include "button.h"
 
-void dodgeGame();
+void dodgeGame(bool& playAgain);
 
 int main()
 {
@@ -37,7 +37,7 @@ int main()
     
     button1.setPosition({ 80,250 });
     button2.setPosition({ 300,250 });
-    quitButton.setPosition({ 225,350 });
+    quitButton.setPosition({ 230,350 });
 
 //Start of Loop__________________________________________________
     while (mainMenu.isOpen())
@@ -84,7 +84,11 @@ int main()
                     if (button1.onPressed(mainMenu))
                     {
                         mainMenu.setVisible(false);
-                        dodgeGame();
+                        bool playAgain{ true };
+                        while (playAgain)
+                        {
+                            dodgeGame(playAgain);
+                        }
                         mainMenu.setVisible(true);
                     }
 

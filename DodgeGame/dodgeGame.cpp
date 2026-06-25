@@ -12,6 +12,7 @@
 #include <algorithm>
 
 #include "Random.h"
+#include "button.h"
 
 class Bullet : public sf::Drawable, public sf::Transformable
 {
@@ -133,7 +134,7 @@ private:
 
 	sf::CircleShape m_playerModel{ 30.f, 3 };
 	sf::RectangleShape m_front{ {5.f,10.f} };
-	int m_healthPoints{ 1 };
+	int m_healthPoints{ 100 };
 	int m_points{ 0 };
 };
 
@@ -199,6 +200,7 @@ public:
 	sf::Vector2f direction{};
 	sf::Clock deleteSaveTimeC;
 	float deleteSaveTime{ 2.0f };
+	float ignoringCollisionTime{ 0.1f };
 	float speed{};
 
 	Asteroid()
@@ -429,7 +431,7 @@ float astSpeedBasedOnSize(float& speed, Asteroid& ast)
 
 //-------------------------------------------------------------------------
 
-void dodgeGame()
+void dodgeGame(bool& playAgain)
 {
 	sf::RenderWindow dodgeGameWindow(sf::VideoMode({ 1000,900 }), "Dodge Game");
 
@@ -438,8 +440,8 @@ void dodgeGame()
 	sf::Clock delta;
 	sf::Clock astSpawnTimer;
 	sf::Clock targetedSpawnTimer;
-	sf::Clock damagingCloudSpawnTimer;
-	sf::Clock cloudDamageCoolDownTimer;
+	//sf::Clock damagingCloudSpawnTimer;
+	//sf::Clock cloudDamageCoolDownTimer;
 	sf::Clock GameOverTextTime{};
 	GameOverTextTime.stop();
 
@@ -491,7 +493,7 @@ void dodgeGame()
 		if (checkIfGameOver(gameTimer, player))
 		{
 			GameOverTextTime.start();
-			if (GameOverTextTime.getElapsedTime().asSeconds() >= 3.5f)
+			if (GameOverTextTime.getElapsedTime().asSeconds() >= 0.5f)
 			{
 				gameTimer.stop();
 			}
@@ -674,13 +676,133 @@ void dodgeGame()
 			while (const std::optional event = dodgeGameWindow.pollEvent())
 			{
 				if (event->is<sf::Event::Closed>())
+				{
+					playAgain = false;
+					return;
 					dodgeGameWindow.close();
-
+				}
+					
 				if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 				{
 					if (keyPressed->scancode == sf::Keyboard::Scan::Escape)
 					{
-						dodgeGameWindow.close();
+						bool optionsOpen{ true };
+						while (optionsOpen)
+						{
+							//Pausing all Clocks so nothing in the background continues running (asteroids flying etc..)
+							gameTimer.stop();
+							difficultyTimer.stop();
+							delta.stop();
+							astSpawnTimer.stop();
+							targetedSpawnTimer.stop();
+
+
+							sf::Text OptionsHeadline{ font, "OPTIONS" ,50 };
+							OptionsHeadline.setPosition({400, 50});
+
+							sf::Text upText{ font, "W:  Up/Forward", 30 };
+							upText.setPosition({200, 150});
+
+							sf::Text leftText{ font, "A:  Left", 30 };
+							leftText.setPosition({ 200, 200 });
+
+							sf::Text downText{ font, "S:  Down/Backwards", 30 };
+							downText.setPosition({ 200, 250 });
+
+							sf::Text rightText{ font, "D:  Right", 30 };
+							rightText.setPosition({ 200, 300 });
+
+							sf::Text mouseMoveText{ font, "Moving Mouse:  Aim", 30 };
+							mouseMoveText.setPosition({ 200, 350 });
+
+							sf::Text leftMouseText{ font, "Left Mouse Button:  Shoot", 30 };
+							leftMouseText.setPosition({ 200, 400 });
+
+							Button continueButton{ "continueButton" };
+							std::string continueButtonText{ "Continue" };
+							continueButton.setButtonText(continueButtonText);
+							continueButton.setPosition({ 550.f,600.f });
+
+							Button quitButton{ "quit" };
+							std::string quitButtonText{ "Quit" };
+							quitButton.setButtonText(quitButtonText);
+							quitButton.setPosition({ 350.f,600.f });
+
+							while (const std::optional event = dodgeGameWindow.pollEvent())
+							{
+								if (event->is<sf::Event::Closed>())
+								{
+									playAgain = false;
+									return;
+									dodgeGameWindow.close();
+								}
+									
+								if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+								{
+									if (keyPressed->scancode == sf::Keyboard::Scan::Escape)
+									{
+										optionsOpen = false;
+									}
+								}
+
+								if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>())
+								{
+									if (continueButton.isHovered(dodgeGameWindow))
+									{
+										continueButton.setButtonFillColor(sf::Color::Cyan);
+									}
+									else
+									{
+										continueButton.setButtonFillColor(sf::Color::White);
+									}
+
+									if (quitButton.isHovered(dodgeGameWindow))
+									{
+										quitButton.setButtonFillColor(sf::Color::Cyan);
+									}
+									else
+									{
+										quitButton.setButtonFillColor(sf::Color::White);
+									}
+								}
+
+								if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+								{
+									if (mouseButtonPressed->button == sf::Mouse::Button::Right || mouseButtonPressed->button == sf::Mouse::Button::Left)
+									{
+										if (continueButton.onPressed(dodgeGameWindow))
+										{
+											optionsOpen = false;
+										}
+
+										if (quitButton.onPressed(dodgeGameWindow))
+										{
+											playAgain = false;
+											return;
+										}
+									}
+								}
+								dodgeGameWindow.clear();
+
+								dodgeGameWindow.draw(OptionsHeadline);
+								dodgeGameWindow.draw(upText);
+								dodgeGameWindow.draw(downText);
+								dodgeGameWindow.draw(rightText);
+								dodgeGameWindow.draw(leftText);
+								dodgeGameWindow.draw(mouseMoveText);
+								dodgeGameWindow.draw(leftMouseText);
+
+								dodgeGameWindow.draw(continueButton);
+								dodgeGameWindow.draw(quitButton);
+
+								dodgeGameWindow.display();
+							}	
+						}
+						gameTimer.start();
+						difficultyTimer.start();
+						delta.start();
+						astSpawnTimer.start();
+						targetedSpawnTimer.start();
 					}
 				}
 
@@ -768,7 +890,7 @@ void dodgeGame()
 				}
 			}
 
-			if (std::ssize(cloudsOnScreen) > 0)
+			/*if (std::ssize(cloudsOnScreen) > 0)
 			{
 				for (auto& dmgc : cloudsOnScreen)
 				{
@@ -782,7 +904,7 @@ void dodgeGame()
 					}
 
 				}
-			}
+			}*/
 
 			if (std::ssize(asteroidsOnScreen) >= 2)
 			{
@@ -884,24 +1006,78 @@ void dodgeGame()
 	dodgeGameWindow.setVisible(false);
 	sf::RenderWindow highscoreWindow(sf::VideoMode({ 500,500 }), "Dodge Game Highscore");
 
-	sf::Text highscoreText{ font, "HIGHSCORE", 50 };
-	highscoreText.setPosition({100.f,0.0f});
+	int highscore{player.getScore() + static_cast<int>((gameTimer.getElapsedTime().asSeconds() * 1.5))};
 
-	sf::Text highscoreNumber{ font, "Number", 25 };
-	highscoreNumber.setPosition({ 200.f, 200.f });
+	sf::Text highscoreNumber{ font, "Highscore: " + std::to_string(highscore), 30};
+	highscoreNumber.setPosition({ 130.f, 200.f });
+
+	Button playAgainButton{ "playAgain" };
+	std::string continueButtonText{ "Play Again" };
+	playAgainButton.setButtonText(continueButtonText);
+	playAgainButton.setPosition({350.f,400.f});
+
+	Button quitButton{ "quit" };
+	std::string quitButtonText{ "Quit" };
+	quitButton.setButtonText(quitButtonText);
+	quitButton.setPosition({ 50.f,400.f });
 
 	while (highscoreWindow.isOpen())
 	{
 		while (const std::optional event = highscoreWindow.pollEvent())
 		{
 			if (event->is<sf::Event::Closed>())
+			{
+				playAgain = false;
 				highscoreWindow.close();
+			}
+				
+
+			if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>())
+			{
+				if (playAgainButton.isHovered(highscoreWindow))
+				{
+					playAgainButton.setButtonFillColor(sf::Color::Cyan);
+				}
+				else
+				{
+					playAgainButton.setButtonFillColor(sf::Color::White);
+				}
+
+				if (quitButton.isHovered(highscoreWindow))
+				{
+					quitButton.setButtonFillColor(sf::Color::Cyan);
+				}
+				else
+				{
+					quitButton.setButtonFillColor(sf::Color::White);
+				}
+			}
+
+
+			if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+			{
+				if (mouseButtonPressed->button == sf::Mouse::Button::Right || mouseButtonPressed->button == sf::Mouse::Button::Left)
+				{
+					if (playAgainButton.onPressed(highscoreWindow))
+					{
+						playAgain = true;
+						return;
+					}
+
+					if (quitButton.onPressed(highscoreWindow))
+					{
+						 playAgain = false;
+						 return;
+					}
+				}
+			}
 		}
 
 		highscoreWindow.clear();
 
-		highscoreWindow.draw(highscoreText);
 		highscoreWindow.draw(highscoreNumber);
+		highscoreWindow.draw(playAgainButton);
+		highscoreWindow.draw(quitButton);
 
 		highscoreWindow.display();
 	}
