@@ -128,12 +128,12 @@ private:
 	void initialTransform()
 	{
 		m_playerModel.setOrigin(m_playerModel.getGeometricCenter());
-		m_front.setFillColor(sf::Color::Blue);
-		m_front.setPosition({ -2.2f,-33.f });
+		m_front.setFillColor(sf::Color::Magenta);
+		m_front.setPosition({ -8.f,-30.f });
 	}
 
 	sf::CircleShape m_playerModel{ 30.f, 3 };
-	sf::RectangleShape m_front{ {5.f,10.f} };
+	sf::CircleShape m_front{ 8.f, 3};
 	int m_healthPoints{ 100 };
 	int m_points{ 0 };
 };
@@ -253,7 +253,7 @@ private:
 
 //---------------------------------------------------------------------------------------------------------------------
 
-bool checkIfGameOver(sf::Clock& gameTimer, Player& player)
+static bool checkIfGameOver(sf::Clock& gameTimer, Player& player)
 {
 	if (player.getHealthPoints() <= 0)
 	{
@@ -262,7 +262,7 @@ bool checkIfGameOver(sf::Clock& gameTimer, Player& player)
 	return false;
 }
 
-sf::Vector2f normalize(sf::Vector2f vec)
+static sf::Vector2f normalize(sf::Vector2f vec)
 {
 	float magnitude{ std::sqrt((vec.x * vec.x) + (vec.y * vec.y)) };
 
@@ -270,7 +270,7 @@ sf::Vector2f normalize(sf::Vector2f vec)
 }
 
 //Random Asteroids here
-sf::Vector2f randomPositionAndDirectionOutsideOfScreen(int randomNumber, sf::RenderWindow& currentWindow, Asteroid& asteroid)
+static sf::Vector2f randomPositionAndDirectionOutsideOfScreen(int randomNumber, sf::RenderWindow& currentWindow, Asteroid& asteroid)
 {
 	float x{ };
 	float y{ };
@@ -303,7 +303,7 @@ sf::Vector2f randomPositionAndDirectionOutsideOfScreen(int randomNumber, sf::Ren
 }
 
 //Targeted Asteroids here
-sf::Vector2f randomPositionForTargetedAst(int randomNumber, sf::RenderWindow& currentWindow, Asteroid& asteroid)
+static sf::Vector2f randomPositionForTargetedAst(int randomNumber, sf::RenderWindow& currentWindow, Asteroid& asteroid)
 {
 	float x{ };
 	float y{ };
@@ -329,7 +329,7 @@ sf::Vector2f randomPositionForTargetedAst(int randomNumber, sf::RenderWindow& cu
 }
 
 //Collision handling
-bool bulletCollisionHandling(Bullet& bullet, Asteroid& asteroid, Player& player)
+static bool bulletCollisionHandling(Bullet& bullet, Asteroid& asteroid, Player& player)
 {
 	float dx{ asteroid.getPosition().x - bullet.getPosition().x };
 	float dy{ asteroid.getPosition().y - bullet.getPosition().y };
@@ -355,7 +355,7 @@ bool bulletCollisionHandling(Bullet& bullet, Asteroid& asteroid, Player& player)
 	return false;
 }
 
-void astOnAstCollision(Asteroid& ast1, Asteroid& ast2)
+static void astOnAstCollision(Asteroid& ast1, Asteroid& ast2)
 {
 	float dx{ ast1.getPosition().x - ast2.getPosition().x };
 	float dy{ ast1.getPosition().y - ast2.getPosition().y };
@@ -369,7 +369,7 @@ void astOnAstCollision(Asteroid& ast1, Asteroid& ast2)
 	}
 }
 
-bool playerCollision(Asteroid& asteroid, Player& player)
+static bool playerCollision(Asteroid& asteroid, Player& player)
 {
 	float dx{ asteroid.getPosition().x - player.getPosition().x };
 	float dy{ asteroid.getPosition().y - player.getPosition().y };
@@ -382,7 +382,7 @@ bool playerCollision(Asteroid& asteroid, Player& player)
 	return false;
 }
 
-bool playerInCloud(damagingCloud& dmgc, Player& player)
+static bool playerInCloud(damagingCloud& dmgc, Player& player)
 {
 	auto playerCenter{ player.getPosition() };
 	auto playerRadius{ player.getRadius() - 15.f };
@@ -410,7 +410,7 @@ bool playerInCloud(damagingCloud& dmgc, Player& player)
 	return false;
 }
 
-float astSpeedBasedOnSize(float& speed, Asteroid& ast)
+static float astSpeedBasedOnSize(float& speed, Asteroid& ast)
 {
 	float astSize{ ast.getRadius() };
 	if (astSize <= 15.f)
