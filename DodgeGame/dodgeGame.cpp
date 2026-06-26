@@ -473,6 +473,7 @@ static float astSpeedBasedOnSize(float& speed, Asteroid& ast)
 	{
 		return speed * 0.6f;
 	}
+	return speed;
 }
 
 void playAnimation(sf::Clock& animationTimer, float& animationSpeed, sf::Sprite& sprite, int& animationSpriteSize, int& currentAnimationSprite, int& animationSpriteAmount)

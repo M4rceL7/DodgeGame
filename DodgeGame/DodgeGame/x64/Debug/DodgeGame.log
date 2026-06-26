@@ -1,5 +1,4 @@
 ﻿  dodgeGame.cpp
-C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(476,1): warning C4715: 'astSpeedBasedOnSize': not all control paths return a value
 C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(375,1): warning C4715: 'randomPositionForTargetedAst': not all control paths return a value
 C:\Projects\DodgeGame\DodgeGame\dodgeGame.cpp(349,1): warning C4715: 'randomPositionAndDirectionOutsideOfScreen': not all control paths return a value
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
