@@ -138,6 +138,27 @@
     <ClInclude Include="button.h" />
     <ClInclude Include="Random.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Asteroid.png" />
+    <Image Include="AsteroidExplode.png" />
+    <Image Include="BaseEngine.png" />
+    <Image Include="BlackHole.png" />
+    <Image Include="BulletBall.png" />
+    <Image Include="Cannon.png" />
+    <Image Include="Damaged.png" />
+    <Image Include="EngineFire.png" />
+    <Image Include="Fullhealth.png" />
+    <Image Include="Galaxy1.png" />
+    <Image Include="Galaxy2.png" />
+    <Image Include="GasGiant.png" />
+    <Image Include="LavaPlanet.png" />
+    <Image Include="NeutronStar.png" />
+    <Image Include="PurpleNebula.png" />
+    <Image Include="Slightdamage.png" />
+    <Image Include="Starfield.png" />
+    <Image Include="Verydamaged.png" />
+    <Image Include="WetPlanet.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -14,7 +14,31 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>{31f76970-499e-45a4-9ac7-caf028228ecc}</UniqueIdentifier>
+      <UniqueIdentifier>{a41bd8a5-fb5f-4ccb-99ec-aeac1c1da50b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\SpaceShip">
+      <UniqueIdentifier>{ad0b82ec-e925-4c69-871b-f33489517aba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Engines">
+      <UniqueIdentifier>{ad7c1189-520b-4284-99fb-4f7ff8c24779}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Gun">
+      <UniqueIdentifier>{d3e88295-ba87-4f12-b905-0af2bed5e335}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Background">
+      <UniqueIdentifier>{41343532-63ca-462f-9714-eac93eedf2fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Engines\EngineEffect">
+      <UniqueIdentifier>{e368ec45-a364-47dd-94f9-4588f7501b5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Gun\Bullet">
+      <UniqueIdentifier>{d019100c-a15c-4e66-a025-1707c90d5e75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Background\Extras">
+      <UniqueIdentifier>{eacf65c9-b16a-4446-b5f3-a5191262bb7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Asteroid">
+      <UniqueIdentifier>{eb9d1020-fcbe-4cf8-bee9-47ecaeec47f1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -32,5 +56,64 @@
     <ClInclude Include="Random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Damaged.png">
+      <Filter>Assets\SpaceShip</Filter>
+    </Image>
+    <Image Include="Fullhealth.png">
+      <Filter>Assets\SpaceShip</Filter>
+    </Image>
+    <Image Include="Slightdamage.png">
+      <Filter>Assets\SpaceShip</Filter>
+    </Image>
+    <Image Include="Verydamaged.png">
+      <Filter>Assets\SpaceShip</Filter>
+    </Image>
+    <Image Include="BaseEngine.png">
+      <Filter>Assets\Engines</Filter>
+    </Image>
+    <Image Include="Cannon.png">
+      <Filter>Assets\Gun</Filter>
+    </Image>
+    <Image Include="PurpleNebula.png">
+      <Filter>Assets\Background</Filter>
+    </Image>
+    <Image Include="Starfield.png">
+      <Filter>Assets\Background</Filter>
+    </Image>
+    <Image Include="BulletBall.png">
+      <Filter>Assets\Gun\Bullet</Filter>
+    </Image>
+    <Image Include="EngineFire.png">
+      <Filter>Assets\Engines\EngineEffect</Filter>
+    </Image>
+    <Image Include="WetPlanet.png">
+      <Filter>Assets\Background\Extras</Filter>
+    </Image>
+    <Image Include="BlackHole.png">
+      <Filter>Assets\Background\Extras</Filter>
+    </Image>
+    <Image Include="LavaPlanet.png">
+      <Filter>Assets\Background\Extras</Filter>
+    </Image>
+    <Image Include="GasGiant.png">
+      <Filter>Assets\Background\Extras</Filter>
+    </Image>
+    <Image Include="Galaxy1.png">
+      <Filter>Assets\Background\Extras</Filter>
+    </Image>
+    <Image Include="Galaxy2.png">
+      <Filter>Assets\Background\Extras</Filter>
+    </Image>
+    <Image Include="Asteroid.png">
+      <Filter>Assets\Asteroid</Filter>
+    </Image>
+    <Image Include="AsteroidExplode.png">
+      <Filter>Assets\Asteroid</Filter>
+    </Image>
+    <Image Include="NeutronStar.png">
+      <Filter>Assets\Background\Extras</Filter>
+    </Image>
   </ItemGroup>
 </Project>
