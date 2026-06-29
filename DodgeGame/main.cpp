@@ -12,19 +12,20 @@ int main()
 {
     sf::RenderWindow mainMenu(sf::VideoMode({ 500, 500 }), "Main Menu");
 
+    sf::Font font{ "arial.ttf" };
+
 //Buttons created for later use__________________________________
     Button button1{ "ButtonGame1" };
-    std::string Button1Text{ "Dodge Game" };
+    std::string Button1Text{ "Play" };
     button1.setButtonText(Button1Text);
     
-    Button button2{ "ButtonGame2" };
-    std::string Button2Text{ "In Progress" };
-    button2.setButtonText(Button2Text);
-  
     Button quitButton{ "ButtonQuit" };
     std::string quitButtonText{ "Quit" };
     quitButton.setButtonText(quitButtonText);
     
+
+    sf::Text gameText{ font, "Dodge Game", 80 };
+    gameText.setPosition({ 12.f, 60.f });
 
     //Button Layout______________________________________________
    /* std::vector<Button> buttonsForMiddleLayout{button1, button2};
@@ -35,9 +36,8 @@ int main()
         
     }*/
     
-    button1.setPosition({ 80,250 });
-    button2.setPosition({ 300,250 });
-    quitButton.setPosition({ 230,350 });
+    button1.setPosition({ 230,300 });
+    quitButton.setPosition({ 230,400 });
 
 //Start of Loop__________________________________________________
     while (mainMenu.isOpen())
@@ -56,15 +56,6 @@ int main()
                 else
                 {
                     button1.setButtonFillColor(sf::Color::White);
-                }
-
-                if (button2.isHovered(mainMenu))
-                {
-                    button2.setButtonFillColor(sf::Color::Cyan);
-                }
-                else
-                {
-                    button2.setButtonFillColor(sf::Color::White);
                 }
 
                 if (quitButton.isHovered(mainMenu))
@@ -92,11 +83,6 @@ int main()
                         mainMenu.setVisible(true);
                     }
 
-                    if (button2.onPressed(mainMenu))
-                    {
-                        
-                    }
-
                     if (quitButton.onPressed(mainMenu))
                     {
                         mainMenu.close();
@@ -109,8 +95,8 @@ int main()
         }
 
         mainMenu.clear();
+        mainMenu.draw(gameText);
         mainMenu.draw(button1);
-        mainMenu.draw(button2);
         mainMenu.draw(quitButton);
         mainMenu.display();
     }

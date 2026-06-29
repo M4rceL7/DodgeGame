@@ -20,7 +20,15 @@ public:
 	bool isActive{ true };
 	sf::Vector2f direction{};
 
-	Bullet()
+	int animationSpriteAmount{ 10 };
+	int currentAnimationSprite{ 1 };
+	int animationSpriteSize{ 32 };
+	float animationSpeed{ 0.05f };
+	sf::Clock bulletAnimationPlayTimer{};
+
+	sf::Sprite bulletSprite;
+
+	Bullet(sf::Texture& texture) : bulletSprite{texture}
 	{
 		initialTransform();
 	}
@@ -43,18 +51,33 @@ public:
 		return m_bullet.getRadius();
 	}
 
+	void updateSpriteSize()
+	{
+		float diameter{ m_bullet.getRadius() * 2.f };
+		//The 32 here is the size of the image in pixel
+		float newScale{ (diameter * 2.f) / 32 };
+		bulletSprite.setScale({ newScale, newScale });
+	}
+
 private:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override
 	{
 		states.transform *= getTransform();
 
-		target.draw(m_bullet, states);
+		//target.draw(m_bullet, states);
+		target.draw(bulletSprite, states);
 
 	}
 
 	void initialTransform()
 	{
 		m_bullet.setOrigin(m_bullet.getGeometricCenter());
+		bulletSprite.setTextureRect(sf::IntRect({ 0,0 }, { animationSpriteSize ,animationSpriteSize }));
+
+		bulletSprite.setOrigin(bulletSprite.getLocalBounds().getCenter());
+		bulletSprite.setPosition(m_bullet.getGlobalBounds().getCenter());
+
+		updateSpriteSize();
 	}
 
 	
@@ -82,9 +105,9 @@ public:
 		initialTransform();
 	}
 
-	Bullet shoot()
+	Bullet shoot(sf::Texture& bulletTexture)
 	{
-		Bullet bullet{};
+		Bullet bullet{bulletTexture};
 		shootingCoowldown.restart();
 		return bullet;
 
@@ -126,6 +149,24 @@ public:
 		return m_playerModel.getRadius();
 	}
 
+	void statusOfShip()
+	{
+		if (m_healthPoints <= 80 && m_healthPoints >= 60)
+		{
+			m_playerSprite.setTexture(m_playerTextureSD);
+		}
+
+		if (m_healthPoints <= 50 && m_healthPoints >= 30)
+		{
+			m_playerSprite.setTexture(m_playerTextureD);
+		}
+
+		if (m_healthPoints <= 20 && m_healthPoints >= 10)
+		{
+			m_playerSprite.setTexture(m_playerTextureVD);
+		}
+	}
+
 private:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override
 	{
@@ -160,7 +201,10 @@ private:
 
 	}
 
-	sf::Texture m_playerTexture{"./FullHealth.png"};
+	sf::Texture m_playerTexture{ "./FullHealth.png" };
+	sf::Texture m_playerTextureSD{ "./Slightdamage.png" };
+	sf::Texture m_playerTextureD{ "./Damaged.png" };
+	sf::Texture m_playerTextureVD{ "./Verydamaged.png" };
 	sf::Sprite m_playerSprite{m_playerTexture};
 
 	sf::Texture m_engineEffectsTexture{"./BaseEngine.png"};
@@ -236,23 +280,38 @@ class Asteroid : public sf::Drawable, public sf::Transformable
 {
 public:
 	bool isActive{ true };
+	bool animationPlayed{ false };
 	sf::Vector2f direction{};
 	sf::Clock deleteSaveTimeC;
 	float deleteSaveTime{ 2.0f };
 	float ignoringCollisionTime{ 0.1f };
 	float speed{};
 
+	int animationSpriteAmount{ 7 };
+	int currentAnimationSprite{ 1 };
+	int animationSpriteSize{ 96 };
+	float animationSpeed{ 0.05f };
+	sf::Clock asteroidAnimationPlayTimer{};
+
+	sf::Sprite m_asteroidSprite;
+
 	Asteroid(sf::Texture& texture) : m_asteroidSprite{texture}
 	{
 		initialTransform();
+		asteroidAnimationPlayTimer.stop();
 	}
 
 	void checkIfStillOnScreen(sf::RenderWindow& currentWindow)
 	{
-		if (Asteroid::getPosition().x > currentWindow.getSize().x || Asteroid::getPosition().y > currentWindow.getSize().y || Asteroid::getPosition().x < 0 || Asteroid::getPosition().y < 0)
+		if (isActive)
 		{
-			isActive = false;
+			if (Asteroid::getPosition().x > currentWindow.getSize().x || Asteroid::getPosition().y > currentWindow.getSize().y || Asteroid::getPosition().x < 0 || Asteroid::getPosition().y < 0)
+			{
+				isActive = false;
+				animationPlayed = true;
+			}
 		}
+		
 	}
 
 	sf::FloatRect getGlobalBounds() const
@@ -270,11 +329,42 @@ public:
 		m_asteriod.setRadius(newRad);
 	}
 
+	void updateSpriteSize()
+	{
+		float diameter{ m_asteriod.getRadius() * 2.f };
+		//The 96 here is the size of the image in pixel
+		float newScale{ ((diameter * 3.f) + 10.f) / 96 };
+		m_asteroidSprite.setScale({ newScale, newScale });
+
+		float randomAngleInDeg{ static_cast<float>(Random::get(0,359)) };
+		m_asteroidSprite.setRotation(sf::degrees(randomAngleInDeg));
+	}
+
+	void setNewFrame(sf::IntRect& newRect)
+	{
+		m_asteroidSprite.setTextureRect(newRect);
+	}
+
+	void setNewTexture(sf::Texture& newTexture)
+	{
+		m_asteroidSprite.setTexture(newTexture);
+	}
+
+	sf::Sprite& getSprite()
+	{
+		return m_asteroidSprite;
+	}
+
 private:
 
 	void initialTransform()
 	{
 		m_asteriod.setOrigin(m_asteriod.getGeometricCenter());
+
+		m_asteroidSprite.setOrigin(m_asteroidSprite.getLocalBounds().getCenter());
+		m_asteroidSprite.setPosition({ m_asteriod.getPosition().x ,  m_asteriod.getPosition().y});
+
+		updateSpriteSize();
 
 		float randomAngleInDeg{ static_cast<float>(Random::get(0,359)) };
 		m_asteroidSprite.setRotation(sf::degrees(randomAngleInDeg));
@@ -288,8 +378,6 @@ private:
 		target.draw(m_asteroidSprite, states);
 	}
 
-	
-	sf::Sprite m_asteroidSprite;
 
 	int m_asteroidRandomSizeMin{ 15 };
 	int m_asteroidRandomSizeMax{ 40 };
@@ -380,7 +468,7 @@ static bool bulletCollisionHandling(Bullet& bullet, Asteroid& asteroid, Player& 
 	float dx{ asteroid.getPosition().x - bullet.getPosition().x };
 	float dy{ asteroid.getPosition().y - bullet.getPosition().y };
 	float dr{ asteroid.getRadius() + bullet.getRadius() };
-	if ((dx * dx) + (dy * dy) < dr * dr)
+	if ((dx * dx) + (dy * dy) < dr * dr && asteroid.isActive && bullet.isActive)
 	{
 		bullet.isActive = false;
 		asteroid.isActive = false;
@@ -406,7 +494,7 @@ static void astOnAstCollision(Asteroid& ast1, Asteroid& ast2)
 	float dx{ ast1.getPosition().x - ast2.getPosition().x };
 	float dy{ ast1.getPosition().y - ast2.getPosition().y };
 	float dr{ ast1.getRadius() + ast2.getRadius() };
-	if ((dx * dx) + (dy * dy) < dr * dr)
+	if ((dx * dx) + (dy * dy) < dr * dr && ast1.isActive && ast2.isActive)
 	{
 		sf::Vector2f normal{ normalize(ast1.getPosition() - ast2.getPosition()) };
 
@@ -420,7 +508,7 @@ static bool playerCollision(Asteroid& asteroid, Player& player)
 	float dx{ asteroid.getPosition().x - player.getPosition().x };
 	float dy{ asteroid.getPosition().y - player.getPosition().y };
 	float dr{ asteroid.getRadius() + player.getRadius() };
-	if ((dx * dx) + (dy * dy) < dr * dr)
+	if ((dx * dx) + (dy * dy) < dr * dr && asteroid.isActive)
 	{
 		asteroid.isActive = false;
 		return true;
@@ -476,7 +564,7 @@ static float astSpeedBasedOnSize(float& speed, Asteroid& ast)
 	return speed;
 }
 
-void playAnimation(sf::Clock& animationTimer, float& animationSpeed, sf::Sprite& sprite, int& animationSpriteSize, int& currentAnimationSprite, int& animationSpriteAmount)
+static void playAnimation(sf::Clock& animationTimer, float& animationSpeed, sf::Sprite& sprite, int& animationSpriteSize, int& currentAnimationSprite, int& animationSpriteAmount)
 {
 	if (animationTimer.getElapsedTime().asSeconds() >= animationSpeed)
 	{
@@ -486,6 +574,22 @@ void playAnimation(sf::Clock& animationTimer, float& animationSpeed, sf::Sprite&
 		if (currentAnimationSprite >= animationSpriteAmount)
 		{
 			currentAnimationSprite = 1;
+		}
+
+		animationTimer.restart();
+	}
+}
+
+static void playAnimationAst(sf::Clock& animationTimer, float& animationSpeed, sf::Sprite& sprite, int& animationSpriteSize, int& currentAnimationSprite, int& animationSpriteAmount, Asteroid& ast)
+{
+	if (animationTimer.getElapsedTime().asSeconds() >= animationSpeed)
+	{
+		sprite.setTextureRect(sf::IntRect({ 0 + (animationSpriteSize * currentAnimationSprite), 0 }, { animationSpriteSize ,animationSpriteSize }));
+		currentAnimationSprite++;
+		if (currentAnimationSprite > animationSpriteAmount)
+		{
+			
+			ast.animationPlayed = true;
 		}
 
 		animationTimer.restart();
@@ -511,23 +615,26 @@ void dodgeGame(bool& playAgain)
 	blackholeSprite.setTextureRect(sf::IntRect({ 0,0 }, { animationSpriteSize_BH,animationSpriteSize_BH }));
 	blackholeSprite.setScale({ 0.35f,0.35f });
 	blackholeSprite.setPosition({136.f, 90.f});
+	blackholeSprite.setColor(sf::Color(230, 230, 230));
 
 	int animationSpriteAmount_G1{ 60 };
 	int currentAnimationSprite_G1{ 1 };
 	int animationSpriteSize_G1{ 200 };
 	sf::Clock animationTimer_G1{};
-	float animationSpeed_G1{ 0.1f };
+	float animationSpeed_G1{ 0.05f };
 	sf::Texture galaxy1Texture{"./Galaxy1.png"};
 	sf::Sprite galaxy1Sprite{ galaxy1Texture };
 	galaxy1Sprite.setTextureRect(sf::IntRect({ 0,0 }, { 200,200 }));
 	galaxy1Sprite.setScale({ 0.5f,0.5f });
 	galaxy1Sprite.setPosition({799.f,689.f});
+	galaxy1Sprite.setColor(sf::Color(200, 200, 200));
+	
 
 	int animationSpriteAmount_G2{ 60 };
 	int currentAnimationSprite_G2{ 1 };
 	int animationSpriteSize_G2{ 200 };
 	sf::Clock animationTimer_G2{};
-	float animationSpeed_G2{ 0.1f };
+	float animationSpeed_G2{ 0.05f };
 	sf::Texture galaxy2Texture{ "./Galaxy2.png" };
 	sf::Sprite galaxy2Sprite{ galaxy2Texture };
 	galaxy2Sprite.setTextureRect(sf::IntRect({ 0,0 }, { 200,200 }));
@@ -544,6 +651,7 @@ void dodgeGame(bool& playAgain)
 	wetPlanetSprite.setTextureRect(sf::IntRect({ 0,0 }, { 200,200 }));
 	wetPlanetSprite.setScale({ 0.8f,0.8f });
 	wetPlanetSprite.setPosition({ 420.f,500.f });
+	wetPlanetSprite.setColor(sf::Color(160, 160, 160));
 
 	int animationSpriteAmount_LP{ 60 };
 	int currentAnimationSprite_LP{ 1 };
@@ -555,6 +663,7 @@ void dodgeGame(bool& playAgain)
 	lavaPlanetSprite.setTextureRect(sf::IntRect({ 0,0 }, { 200,200 }));
 	lavaPlanetSprite.setScale({ 0.5f,0.5f });
 	lavaPlanetSprite.setPosition({ 320.f,300.f });
+	lavaPlanetSprite.setColor(sf::Color(180, 180, 180));
 
 	int animationSpriteAmount_GG{ 60 };
 	int currentAnimationSprite_GG{ 1 };
@@ -580,6 +689,10 @@ void dodgeGame(bool& playAgain)
 
 	//Textures for objects that will be destroyed during the loop of the Game
 	sf::Texture m_asteroidTexture{ "./Asteroid.png" };
+	sf::Texture m_asteroidtextureHit{ "./AsteroidExplode.png", false, sf::IntRect({96,0}, {96,96}) };
+	sf::Texture asteroidExplodeTexture{ "./AsteroidExplode.png" };
+
+	sf::Texture bulletTexture{ "./BulletBall.png" };
 
 	sf::Clock gameTimer;
 	sf::Clock difficultyTimer;
@@ -684,6 +797,7 @@ void dodgeGame(bool& playAgain)
 
 
 			//Preset Data that is needed every loop rotation
+			player.statusOfShip();
 			displayTime = static_cast<int>(gameTimer.getElapsedTime().asSeconds());
 			timeText.setString("Time: " + std::to_string(displayTime));
 			scoreText.setString("Score: " + std::to_string(player.getScore()));
@@ -710,7 +824,7 @@ void dodgeGame(bool& playAgain)
 
 			for (int index{ 0 }; index < std::ssize(asteroidsOnScreen); index++)
 			{
-				if (!asteroidsOnScreen.at(index).isActive)
+				if (!asteroidsOnScreen.at(index).isActive && asteroidsOnScreen.at(index).animationPlayed)
 				{
 					asteroidsOnScreen.erase(asteroidsOnScreen.begin() + index);
 				}
@@ -718,7 +832,7 @@ void dodgeGame(bool& playAgain)
 
 			for (int index{ 0 }; index < std::ssize(targetedAsteroidOnScreen); index++)
 			{
-				if (!targetedAsteroidOnScreen.at(index).isActive)
+				if (!targetedAsteroidOnScreen.at(index).isActive && targetedAsteroidOnScreen.at(index).animationPlayed)
 				{
 					targetedAsteroidOnScreen.erase(targetedAsteroidOnScreen.begin() + index);
 				}
@@ -815,7 +929,7 @@ void dodgeGame(bool& playAgain)
 				{
 					directionOfBullet = normalize(mousePosition - playerPosition);
 					sf::Vector2f offset{ (directionOfBullet.x * player.distanceToTopFromCenter().x), (directionOfBullet.y * player.distanceToTopFromCenter().y) };
-					Bullet bullet{ player.shoot() };
+					Bullet bullet{ player.shoot(bulletTexture) };
 					bullet.setPosition(playerPosition + offset);
 					bullet.direction = directionOfBullet;
 
@@ -980,6 +1094,8 @@ void dodgeGame(bool& playAgain)
 							{
 								if (ast.getRadius() >= 32.f)
 								{
+									ast.animationPlayed = true;
+
 									sf::Vector2f perp{ -ast.direction.y, ast.direction.x };
 
 									Asteroid asteroid{ m_asteroidTexture };
@@ -988,6 +1104,8 @@ void dodgeGame(bool& playAgain)
 									asteroid.setRadius(ast.getRadius() / 2.f);
 									asteroid.setPosition(ast.getPosition() + perp * (asteroid.getRadius() + 20.f));
 									asteroid.deleteSaveTime = 0.0f;
+									asteroid.setNewTexture(m_asteroidtextureHit);
+									asteroid.updateSpriteSize();
 									asteroidsOnScreen.push_back(asteroid);
 
 									Asteroid asteroid2{ m_asteroidTexture };
@@ -996,8 +1114,11 @@ void dodgeGame(bool& playAgain)
 									asteroid2.setRadius(ast.getRadius() / 2.f);
 									asteroid2.setPosition(ast.getPosition() - perp * (asteroid.getRadius() + 20.f));
 									asteroid2.deleteSaveTime = 0.0f;
+									asteroid2.setNewTexture(m_asteroidtextureHit);
+									asteroid2.updateSpriteSize();
 									asteroidsOnScreen.push_back(asteroid2);
 
+									
 								}
 							}
 						}
@@ -1017,24 +1138,31 @@ void dodgeGame(bool& playAgain)
 							{
 								if (ast.getRadius() >= 32.f)
 								{
+									ast.animationPlayed = true;
+
 									sf::Vector2f perp{ -ast.direction.y, ast.direction.x };
 
 									Asteroid asteroid{ m_asteroidTexture };
 									asteroid.speed = ast.speed;
-									asteroid.direction = normalize(ast.direction - perp * 0.25f);
+									asteroid.direction = normalize(ast.direction + perp * 0.25f);
 									asteroid.setRadius(ast.getRadius() / 2.f);
 									asteroid.setPosition(ast.getPosition() + perp * (asteroid.getRadius() + 20.f));
 									asteroid.deleteSaveTime = 0.0f;
+									asteroid.setNewTexture(m_asteroidtextureHit);
+									asteroid.updateSpriteSize();
 									asteroidsOnScreen.push_back(asteroid);
 
 									Asteroid asteroid2{ m_asteroidTexture };
 									asteroid2.speed = ast.speed;
-									asteroid2.direction = normalize(ast.direction + perp * 0.25f);
+									asteroid2.direction = normalize(ast.direction - perp * 0.25f);
 									asteroid2.setRadius(ast.getRadius() / 2.f);
 									asteroid2.setPosition(ast.getPosition() - perp * (asteroid.getRadius() + 20.f));
 									asteroid2.deleteSaveTime = 0.0f;
+									asteroid2.setNewTexture(m_asteroidtextureHit);
+									asteroid2.updateSpriteSize();
 									asteroidsOnScreen.push_back(asteroid2);
 
+									
 								}
 							}
 						}
@@ -1060,7 +1188,7 @@ void dodgeGame(bool& playAgain)
 
 			if (std::ssize(asteroidsOnScreen) >= 2)
 			{
-				for (int i1{ 0 }; std::ssize(asteroidsOnScreen) > i1 + 1; i1++)
+				for (auto i1{ 0 }; std::ssize(asteroidsOnScreen) > i1 + 1; i1++)
 				{
 					if (asteroidsOnScreen.at(i1).isActive && asteroidsOnScreen.at(i1 + 1).isActive)
 					{
@@ -1071,7 +1199,7 @@ void dodgeGame(bool& playAgain)
 
 			if (std::ssize(targetedAsteroidOnScreen) >= 2)
 			{
-				for (int i1{ 0 }; std::ssize(targetedAsteroidOnScreen) > i1 + 1; i1++)
+				for (auto i1{ 0 }; std::ssize(targetedAsteroidOnScreen) > i1 + 1; i1++)
 				{
 					if (targetedAsteroidOnScreen.at(i1).isActive && targetedAsteroidOnScreen.at(i1 + 1).isActive)
 					{
@@ -1130,13 +1258,14 @@ void dodgeGame(bool& playAgain)
 				if (bullet.isActive)
 				{
 					bullet.move({ bullet.direction * bulletSpeed * deltaT.asSeconds() });
+					playAnimation(bullet.bulletAnimationPlayTimer, bullet.animationSpeed, bullet.bulletSprite, bullet.animationSpriteSize, bullet.currentAnimationSprite ,bullet.animationSpriteAmount);
 					dodgeGameWindow.draw(bullet);
 				}
+				
 			}
 
 			for (auto& ast : asteroidsOnScreen)
 			{
-				//float adjustedSpeed{ astSpeedBasedOnSize(asteroidSpeed, ast) };
 				if (ast.deleteSaveTimeC.getElapsedTime().asSeconds() >= ast.deleteSaveTime)
 				{
 					ast.checkIfStillOnScreen(dodgeGameWindow);
@@ -1148,8 +1277,19 @@ void dodgeGame(bool& playAgain)
 					{
 						player.setHealthPoints(player.getHealthPoints() -= 10);
 					}
-					dodgeGameWindow.draw(ast);
 				}
+
+				if(!ast.isActive && !ast.animationPlayed)
+				{
+					if (!ast.asteroidAnimationPlayTimer.isRunning())
+					{
+						ast.asteroidAnimationPlayTimer.start();
+						ast.setNewTexture(asteroidExplodeTexture);
+					}
+					
+					playAnimationAst(ast.asteroidAnimationPlayTimer, ast.animationSpeed, ast.m_asteroidSprite, ast.animationSpriteSize, ast.currentAnimationSprite, ast.animationSpriteAmount, ast);
+				}
+				dodgeGameWindow.draw(ast);
 			}
 
 			for (auto& ast : targetedAsteroidOnScreen)
@@ -1164,10 +1304,20 @@ void dodgeGame(bool& playAgain)
 					if (playerCollision(ast, player))
 					{
 						player.setHealthPoints(player.getHealthPoints() -= 10);
-
 					}
-					dodgeGameWindow.draw(ast);
 				}
+
+				if (!ast.isActive && !ast.animationPlayed)
+				{
+					if (!ast.asteroidAnimationPlayTimer.isRunning())
+					{
+						ast.asteroidAnimationPlayTimer.start();
+						ast.setNewTexture(asteroidExplodeTexture);
+					}
+
+					playAnimationAst(ast.asteroidAnimationPlayTimer, ast.animationSpeed, ast.m_asteroidSprite, ast.animationSpriteSize, ast.currentAnimationSprite, ast.animationSpriteAmount, ast);
+				}
+				dodgeGameWindow.draw(ast);
 			}
 
 			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::S) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::A)
